@@ -28,18 +28,26 @@ const HEALTHIER_FOOD_LIST = [
   'yogurt'
 ];
 
-function normalizeFoodName(foodName) {
-  return foodName.trim().toLowerCase();
+const JUNK_METHOD_KEYWORDS = ['fried', 'deep fried', 'processed', 'sugary', 'loaded with sugar', 'fast food'];
+
+function normalizeText(text) {
+  return text.trim().toLowerCase();
 }
 
 export default function HomePage() {
   const [foodInput, setFoodInput] = useState('');
-  const [checkedFood, setCheckedFood] = useState('');
+  const [descriptionInput, setDescriptionInput] = useState('');
+  const [howMadeInput, setHowMadeInput] = useState('');
+  const [submission, setSubmission] = useState(null);
+  const [validationError, setValidationError] = useState('');
 
   const result = useMemo(() => {
-    if (!checkedFood) return null;
+    if (!submission) return null;
 
-    if (JUNK_FOOD_LIST.includes(checkedFood)) {
+    const normalizedFood = normalizeText(submission.food);
+    const normalizedHowMade = normalizeText(submission.howMade);
+
+    if (JUNK_FOOD_LIST.includes(normalizedFood)) {
       return {
         label: 'Junk food ❌',
         helperText: 'Try eating this less often and balance it with whole foods.',
@@ -47,7 +55,7 @@ export default function HomePage() {
       };
     }
 
-    if (HEALTHIER_FOOD_LIST.includes(checkedFood)) {
+    if (HEALTHIER_FOOD_LIST.includes(normalizedFood)) {
       return {
         label: 'Not junk food ✅',
         helperText: 'Nice choice. Keep building healthy habits!',
@@ -55,16 +63,40 @@ export default function HomePage() {
       };
     }
 
+    if (JUNK_METHOD_KEYWORDS.some((keyword) => normalizedHowMade.includes(keyword))) {
+      return {
+        label: 'Likely junk food ❌',
+        helperText: 'The preparation style sounds heavily processed or fried.',
+        color: 'text-rose-600'
+      };
+    }
+
     return {
-      label: "I don't know this one yet 🤔",
-      helperText: 'Tip: Try foods like chips, apple, soda, or broccoli.',
-      color: 'text-amber-600'
+      label: "Possibly not junk food ✅",
+      helperText: 'This item is not in our list, but the preparation sounds reasonable.',
+      color: 'text-emerald-600'
     };
-  }, [checkedFood]);
+  }, [submission]);
 
   function handleSubmit(event) {
     event.preventDefault();
-    setCheckedFood(normalizeFoodName(foodInput));
+
+    const trimmedFood = normalizeText(foodInput);
+    const trimmedDescription = normalizeText(descriptionInput);
+    const trimmedHowMade = normalizeText(howMadeInput);
+
+    if (!trimmedFood || !trimmedDescription || !trimmedHowMade) {
+      setValidationError('Please enter non-empty text for all fields.');
+      setSubmission(null);
+      return;
+    }
+
+    setValidationError('');
+    setSubmission({
+      food: foodInput.trim(),
+      description: descriptionInput.trim(),
+      howMade: howMadeInput.trim()
+    });
   }
 
   return (
@@ -72,21 +104,56 @@ export default function HomePage() {
       <section className="w-full rounded-2xl bg-white p-8 shadow-lg">
         <h1 className="text-3xl font-bold tracking-tight">Junk or No</h1>
         <p className="mt-2 text-slate-600">
-          Type a food item below. We&apos;ll tell you if it is likely junk food.
+          Add a food item, a short description, and how it&apos;s made. We&apos;ll tell you if it is likely junk food.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <label htmlFor="food" className="block text-sm font-medium text-slate-700">
-            Food item
-          </label>
-          <input
-            id="food"
-            type="text"
-            value={foodInput}
-            onChange={(event) => setFoodInput(event.target.value)}
-            placeholder="Example: chips"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-          />
+          {validationError && <p className="text-sm text-rose-600">{validationError}</p>}
+          <div>
+            <label htmlFor="food" className="block text-sm font-medium text-slate-700">
+              Food item
+            </label>
+            <input
+              id="food"
+              type="text"
+              value={foodInput}
+              onChange={(event) => setFoodInput(event.target.value)}
+              placeholder="Example: chips"
+              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-slate-700">
+              Short description
+            </label>
+            <textarea
+              id="description"
+              value={descriptionInput}
+              onChange={(event) => setDescriptionInput(event.target.value)}
+              placeholder="Example: Crunchy potato snack with salty flavor"
+              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              rows={2}
+              required
+            />
+          </div>
+
+          <div>
+            <label htmlFor="howMade" className="block text-sm font-medium text-slate-700">
+              How it&apos;s made
+            </label>
+            <textarea
+              id="howMade"
+              value={howMadeInput}
+              onChange={(event) => setHowMadeInput(event.target.value)}
+              placeholder="Example: Thin potato slices are deep fried and salted"
+              className="mt-1 w-full rounded-xl border border-slate-300 px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              rows={2}
+              required
+            />
+          </div>
+
           <button
             type="submit"
             className="w-full rounded-xl bg-blue-600 px-4 py-3 font-semibold text-white transition hover:bg-blue-700"
@@ -95,10 +162,15 @@ export default function HomePage() {
           </button>
         </form>
 
-        {result && (
+        {result && submission && (
           <div className="mt-6 rounded-xl border border-slate-200 bg-slate-50 p-4">
             <h2 className={`text-lg font-semibold ${result.color}`}>{result.label}</h2>
             <p className="mt-1 text-sm text-slate-600">{result.helperText}</p>
+            <div className="mt-3 space-y-1 text-sm text-slate-700">
+              <p><span className="font-semibold">Food:</span> {submission.food}</p>
+              <p><span className="font-semibold">Description:</span> {submission.description}</p>
+              <p><span className="font-semibold">How it&apos;s made:</span> {submission.howMade}</p>
+            </div>
           </div>
         )}
       </section>
