@@ -100,8 +100,15 @@ export default function HomePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-12">
-      <section className="w-full rounded-2xl bg-white p-8 shadow-lg">
+    <main
+      className="flex min-h-screen w-full flex-col items-center justify-center bg-cover bg-center px-6 py-12"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(226, 232, 240, 0.62), rgba(51, 65, 85, 0.7)), url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?auto=format&fit=crop&w=1600&q=80')",
+        backgroundPosition: 'center'
+      }}
+    >
+      <section className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-lg">
         <h1 className="text-3xl font-bold tracking-tight">Junk or No</h1>
         <p className="mt-2 text-slate-600">
           Add a food item, a short description, and how it&apos;s made. We&apos;ll tell you if it is likely junk food.
