@@ -39,6 +39,7 @@ export default function HomePage() {
   const [descriptionInput, setDescriptionInput] = useState('');
   const [howMadeInput, setHowMadeInput] = useState('');
   const [submission, setSubmission] = useState(null);
+  const [validationError, setValidationError] = useState('');
 
   const result = useMemo(() => {
     if (!submission) return null;
@@ -80,10 +81,21 @@ export default function HomePage() {
   function handleSubmit(event) {
     event.preventDefault();
 
+    const trimmedFood = normalizeText(foodInput);
+    const trimmedDescription = normalizeText(descriptionInput);
+    const trimmedHowMade = normalizeText(howMadeInput);
+
+    if (!trimmedFood || !trimmedDescription || !trimmedHowMade) {
+      setValidationError('Please enter non-empty text for all fields.');
+      setSubmission(null);
+      return;
+    }
+
+    setValidationError('');
     setSubmission({
-      food: foodInput,
-      description: descriptionInput,
-      howMade: howMadeInput
+      food: foodInput.trim(),
+      description: descriptionInput.trim(),
+      howMade: howMadeInput.trim()
     });
   }
 
@@ -96,6 +108,7 @@ export default function HomePage() {
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {validationError && <p className="text-sm text-rose-600">{validationError}</p>}
           <div>
             <label htmlFor="food" className="block text-sm font-medium text-slate-700">
               Food item
