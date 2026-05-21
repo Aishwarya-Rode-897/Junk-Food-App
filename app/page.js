@@ -28,11 +28,16 @@ const HEALTHIER_FOOD_LIST = [
   'yogurt'
 ];
 
-const FOOD_MATCH_THRESHOLD = 0.78;
+const JUNK_METHOD_KEYWORDS = [
+  'fried',
+  'deep fried',
+  'processed',
+  'sugary',
+  'loaded with sugar',
+  'fast food'
+];
 
-function normalizeFoodName(foodName) {
-  return foodName.trim().toLowerCase();
-const JUNK_METHOD_KEYWORDS = ['fried', 'deep fried', 'processed', 'sugary', 'loaded with sugar', 'fast food'];
+const FOOD_MATCH_THRESHOLD = 0.78;
 
 function normalizeText(text) {
   return text.trim().toLowerCase();
@@ -126,13 +131,11 @@ export default function HomePage() {
 
     const normalizedFood = normalizeText(submission.food);
     const normalizedHowMade = normalizeText(submission.howMade);
-
-    const junkFoodMatch = getFoodMatch(checkedFood, JUNK_FOOD_LIST);
+    const junkFoodMatch = getFoodMatch(normalizedFood, JUNK_FOOD_LIST);
 
     if (junkFoodMatch) {
-    if (JUNK_FOOD_LIST.includes(normalizedFood)) {
       return {
-        label: 'Junk food ❌',
+        label: 'Junk food',
         helperText: junkFoodMatch.isFuzzyMatch
           ? `Did you mean "${junkFoodMatch.foodName}"? Try eating this less often and balance it with whole foods.`
           : 'Try eating this less often and balance it with whole foods.',
@@ -140,12 +143,11 @@ export default function HomePage() {
       };
     }
 
-    const healthierFoodMatch = getFoodMatch(checkedFood, HEALTHIER_FOOD_LIST);
+    const healthierFoodMatch = getFoodMatch(normalizedFood, HEALTHIER_FOOD_LIST);
 
     if (healthierFoodMatch) {
-    if (HEALTHIER_FOOD_LIST.includes(normalizedFood)) {
       return {
-        label: 'Not junk food ✅',
+        label: 'Not junk food',
         helperText: healthierFoodMatch.isFuzzyMatch
           ? `Did you mean "${healthierFoodMatch.foodName}"? Nice choice. Keep building healthy habits!`
           : 'Nice choice. Keep building healthy habits!',
@@ -155,14 +157,14 @@ export default function HomePage() {
 
     if (JUNK_METHOD_KEYWORDS.some((keyword) => normalizedHowMade.includes(keyword))) {
       return {
-        label: 'Likely junk food ❌',
+        label: 'Likely junk food',
         helperText: 'The preparation style sounds heavily processed or fried.',
         color: 'text-rose-600'
       };
     }
 
     return {
-      label: "Possibly not junk food ✅",
+      label: 'Possibly not junk food',
       helperText: 'This item is not in our list, but the preparation sounds reasonable.',
       color: 'text-emerald-600'
     };
@@ -190,14 +192,6 @@ export default function HomePage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-12">
-      <section className="w-full rounded-2xl bg-white/90 p-8 shadow-2xl shadow-slate-950/15">
-        <div className="mb-8 flex flex-col items-center">
-          <h1 className="fluoride-title" aria-label="Junk or Not">
-            JUNK OR NOT
-          </h1>
-        </div>
-        <p className="mt-2 text-slate-600">
     <main
       className="flex min-h-screen w-full flex-col items-center justify-center bg-cover bg-center px-6 py-12"
       style={{
@@ -207,36 +201,19 @@ export default function HomePage() {
       }}
     >
       <section className="w-full max-w-2xl rounded-2xl bg-white/95 p-8 shadow-lg backdrop-blur-sm sm:p-10">
-        <h1 className="text-4xl font-black leading-none text-slate-950 sm:text-5xl">
-          Junk or No
-        </h1>
-        <p className="mt-4 max-w-xl text-base leading-7 text-slate-600 sm:text-lg">
-          Type a food item below. We&apos;ll tell you if it is likely junk food.
-        </p>
-
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <label
-            htmlFor="food"
-            className="block text-sm font-bold uppercase text-slate-500"
-          >
-            Food item
-          </label>
-          <input
-            id="food"
-            type="text"
-            value={foodInput}
-            onChange={(event) => setFoodInput(event.target.value)}
-            placeholder="Example: chips"
-            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-lg font-medium text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-          />
-      <section className="w-full max-w-2xl rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-bold tracking-tight">Junk or No</h1>
-        <p className="mt-2 text-slate-600">
-          Add a food item, a short description, and how it&apos;s made. We&apos;ll tell you if it is likely junk food.
+        <div className="mb-8 flex flex-col items-center">
+          <h1 className="fluoride-title" aria-label="Junk or Not">
+            JUNK OR NOT
+          </h1>
+        </div>
+        <p className="text-slate-600">
+          Add a food item, a short description, and how it&apos;s made. We&apos;ll tell
+          you if it is likely junk food.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           {validationError && <p className="text-sm text-rose-600">{validationError}</p>}
+
           <div>
             <label htmlFor="food" className="block text-sm font-medium text-slate-700">
               Food item
@@ -296,12 +273,17 @@ export default function HomePage() {
               {result.label}
             </h2>
             <p className="mt-2 text-base leading-6 text-slate-600">{result.helperText}</p>
-            <h2 className={`text-lg font-semibold ${result.color}`}>{result.label}</h2>
-            <p className="mt-1 text-sm text-slate-600">{result.helperText}</p>
             <div className="mt-3 space-y-1 text-sm text-slate-700">
-              <p><span className="font-semibold">Food:</span> {submission.food}</p>
-              <p><span className="font-semibold">Description:</span> {submission.description}</p>
-              <p><span className="font-semibold">How it&apos;s made:</span> {submission.howMade}</p>
+              <p>
+                <span className="font-semibold">Food:</span> {submission.food}
+              </p>
+              <p>
+                <span className="font-semibold">Description:</span> {submission.description}
+              </p>
+              <p>
+                <span className="font-semibold">How it&apos;s made:</span>{' '}
+                {submission.howMade}
+              </p>
             </div>
           </div>
         )}
