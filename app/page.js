@@ -69,8 +69,12 @@ export default function HomePage() {
 
   return (
     <main className="mx-auto flex min-h-screen w-full max-w-2xl flex-col items-center justify-center px-6 py-12">
-      <section className="w-full rounded-2xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-bold tracking-tight">Junk or No</h1>
+      <section className="w-full rounded-2xl bg-white/90 p-8 shadow-2xl shadow-slate-950/15">
+        <div className="mb-8 flex flex-col items-center">
+          <h1 className="fluoride-title" aria-label="Junk or Not">
+            JUNK OR NOT
+          </h1>
+        </div>
         <p className="mt-2 text-slate-600">
           Type a food item below. We&apos;ll tell you if it is likely junk food.
         </p>
@@ -101,6 +105,24 @@ export default function HomePage() {
             <p className="mt-1 text-sm text-slate-600">{result.helperText}</p>
           </div>
         )}
+
+        <section className="mt-8">
+          <h2 className="text-lg font-semibold text-slate-900">Previously added food pairs</h2>
+          <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+            {JUNK_FOOD_LIST.map((junkFood, index) => (
+              <li
+                key={junkFood}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700"
+              >
+                <span className="font-medium capitalize text-rose-600">{junkFood}</span>
+                <span className="mx-2 text-slate-400">&rarr;</span>
+                <span className="font-medium capitalize text-emerald-600">
+                  {HEALTHIER_FOOD_LIST[index]}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </section>
     </main>
   );
