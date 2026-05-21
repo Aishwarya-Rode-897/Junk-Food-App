@@ -1,7 +1,7 @@
 import './globals.css';
 
 export const metadata = {
-  title: 'Junk or No',
+  title: 'Junk or Not',
   description: 'A beginner-friendly app that checks whether a food is junk food.'
 };
 
